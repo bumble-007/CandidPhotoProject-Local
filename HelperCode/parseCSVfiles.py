@@ -2,6 +2,7 @@ import os
 import json
 import shutil
 import csv
+import pandas as pd
 
 
 def parseCSVfiles(path, processedDataPath):
@@ -27,11 +28,32 @@ def parseCSVfiles(path, processedDataPath):
     else:
         print("Path doesn't exist")
 
-              
+
+def concatcsvfiles(imgPath, metaDataPath):
+   
+    dfList = []
+    for imgName in os.listdir(imgPath):
+        if ".jpg" in imgName:
+            csvName = imgName[:-4] + ".csv"
+            if os.path.exists(metaDataPath + csvName):
+                print(csvName)
+                df = pd.read_csv(metaDataPath + csvName, skipinitialspace = True)
+                df.insert(0, "imgName", imgName )
+                dfList.append(df)
+
+    frame = pd.concat(dfList)
+    frame.to_csv('train_NonCandid.csv') 
+
+
+            
+
 if __name__ == "__main__":
     srcDir = os.getcwd() +"\\"
     srcPath = "I:\\CandidPhotoProject\\Analysis\\Exp2\\Candid-FHR\\"
-    processedDataPath = srcDir + "processedData\\" + 'exp2_C_FHR.json'
+    processedDataPath = srcDir + "processedData\\" + 'candid_0.json'
     print(srcPath)
-    if os.path.exists(srcPath):
-        parseCSVfiles(srcPath, processedDataPath)
+    # if os.path.exists(srcPath):
+    #     parseCSVfiles(srcPath, processedDataPath)
+    imgPath = srcDir + "Dataset\\data512x512\\data512x512\\Train\\combined\\NonCandid\\"
+    metaDataPath = srcDir + "metaData\\metaCelebA3\\data\\"
+    concatcsvfiles(imgPath, metaDataPath)
